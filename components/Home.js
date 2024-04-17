@@ -74,7 +74,7 @@ export default function Home() {
           type: "audio/wav",
         });
 
-        let endpointApi = "http://localhost:8000/choro";
+        let endpointApi = "https://conscious-valenka-whycry.koyeb.app/choro";
 
         fetch(endpointApi, {
           method: "POST",
@@ -100,7 +100,7 @@ export default function Home() {
           .catch((error) => {
             setStatus("Erro - " + error.message);
             console.error(
-              `Erro na chamada da API ${endpointApi}: ` + error.message
+              `Erro na chamada da API "${endpointApi}": ` + error.message
             );
             return error;
           })
