@@ -5,7 +5,6 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'reac
 import Icon from 'react-native-vector-icons/FontAwesome'; // Importa o ícone FontAwesome
 
 const LoginScreen = () => {
-  // Estados para armazenar os valores dos campos de entrada
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -27,45 +26,35 @@ const LoginScreen = () => {
   return (
     <View style={styles.container}>
       {/* Logo no lugar do título */}
+      <View style={styles.tesLg}>
       <Image
-        source={require('../../../assets/testeLogo.png')}  // Substitua pelo caminho real para sua imagem
+        source={require('../../../assets/logWhy.png')}  // Substitua pelo caminho real para sua imagem
         style={styles.logo}
       /> 
-
-      {/* Campo de entrada de Email */}
-      <View style={styles.inputContainer}>
-        {/* Ícone de envelope */}
-        <View style={styles.inputIcon}>
-        <Icon name="envelope" size={20} color="#7EA8CB" style={styles.icon} />
-        {/* Campo de entrada de texto para o Email */}
-        </View>
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          placeholderTextColor={"#7EA8CB"}
-          onChangeText={(text) => setEmail(text)}
-          value={email}
-        />
       </View>
+      {/* Campo de entrada de Email */}
+      <View style={styles.aliCadaUm}>
+            <Text>Email</Text>
+            <TextInput style={styles.textInput} value={email}  onChangeText={setEmail} selectionColor="#7EA8CB"/>
+          </View>
 
       {/* Campo de entrada de Senha */}
-      <View style={styles.inputContainer}>
-        {/* Ícone de cadeado */}
-        <View style={styles.inputIcon}>
-        <Icon name="lock" size={20} color="#7EA8CB" style={styles.iconCadeado} />
-        {/* Campo de entrada de texto para a Senha */}
-        </View>
-        <TextInput
-          style={styles.input}
-          placeholder="Senha"
-          placeholderTextColor={"#7EA8CB"}
-          secureTextEntry
-          onChangeText={(text) => setPassword(text)}
-          value={password}
-        />
-      </View>
+
+          <View style={styles.aliCada}>
+            <Text>Senha</Text>
+            <TextInput
+              style={styles.textInput}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              selectionColor="#7EA8CB"
+            />
+          </View>
+
+     
 
       {/* Botão de Login */}
+      <View style={styles.containerBotoes}>
       <TouchableOpacity style={styles.buttonEntrar} onPress={handleLogin}>
         <Text style={styles.buttonText}>Entrar</Text>
       </TouchableOpacity>
@@ -86,49 +75,52 @@ const LoginScreen = () => {
         <Text style={styles.buttonText}>Login com Google</Text>
       </TouchableOpacity>
     </View>
+    </View>
   );
 };
 
 // Estilos para os componentes
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor:'#DAE6F0'
+    flex:1,
+    justifyContent:'center',
+    backgroundColor:'#DAE6F0',
   },
-  // Estilo para a logo
+  tesLg:{
+    alignItems:'center'
+  },
   logo: {
-    width: '110%', // Ajuste a largura conforme necessário
-    height: 200, // Ajuste a altura conforme necessário
-    marginBottom: 16,
+    // width: '40%', // Ajuste a largura conforme necessário
+    // height: '35%', // Ajuste a altura conforme necessário
+    width: '33%', // Ajuste a largura conforme necessário
+    height: 200
   },
-  // Estilo para o contêiner do campo de entrada (Email e Senha)
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderColor: '#7EA8CB',
-    marginBottom: 12,
-    width: '80%',  // Garante que os inputs ocupem a largura total
+  aliCadaUm: {
+    flexDirection: 'column',
+    marginHorizontal: 20,
   },
-  inputIcon:{
-    width:'10%',
+  aliCada: {
+    flexDirection: 'column',
+    marginTop: 15,
+    marginHorizontal: 20,
   },
-  // Estilo para o ícone
-  icon: {
+  erroEmail:{
     marginLeft:2
   },
-  iconCadeado:{
-    marginLeft:6
+  textInput: {
+    backgroundColor: '#b5cde1',
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 20,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    height: 50,
+    marginTop: 10,
+    marginBottom: 5,
+    paddingLeft: 10,
+    fontSize:15
   },
-  // Estilo para o campo de entrada de texto
-  input: {
-    height: 40,
-    width: '100%',
-    marginLeft: 8,
-    color:'#7EA8CB'
+  containerBotoes:{
+    alignItems:'center'
   },
   // Estilo para o botão de Login com tamanho e bordas ajustadas
   buttonEntrar: {
@@ -138,6 +130,29 @@ const styles = StyleSheet.create({
     width: '80%', // Ocupa a largura total do componente pai
     marginTop: 20, // Adiciona um pouco de espaço acima do botão
   },
+  buttonText: {
+    color: 'white',
+    fontSize: 18,
+    textAlign: 'center',
+  },
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+   marginTop: 20,
+   width:'75%'
+  },
+    // Estilo para a linha da divisória
+    dividerLine: {
+      flex: 1,
+      height: 1,
+      backgroundColor: 'gray',
+    },
+    // Estilo para o texto da divisória
+    dividerText: {
+      color: 'gray',
+      marginHorizontal: 10,
+    },
+  
   // Estilo para o botão de Login com o Google
   googleButton: {
     backgroundColor: '#7EA8CB',
@@ -154,30 +169,8 @@ const styles = StyleSheet.create({
 width:'14%',
 height:'100%'
   },
-  // Estilo para o texto dentro do botão de Login
-  buttonText: {
-    color: 'white',
-    fontSize: 18,
-    textAlign: 'center',
-  },
-  // Estilo para o contêiner da divisória
-  dividerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-   marginTop: 20,
-   width:'75%'
-  },
-  // Estilo para a linha da divisória
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: 'gray',
-  },
-  // Estilo para o texto da divisória
-  dividerText: {
-    color: 'gray',
-    marginHorizontal: 10,
-  },
+
+
 });
 
 export default LoginScreen;
