@@ -59,15 +59,8 @@ function Routes(){
     )
 }
 
-function MeuPrimeiroFluxo() {
-    return (
-      <Stack.Navigator>
-        <Stack.Screen name="Tela1" component={Home} />
-      </Stack.Navigator>
-    );
-  }
 
-export default function Zozo(){
+export default function RotasGerais(){
     return(
         <>
         <Routes/>

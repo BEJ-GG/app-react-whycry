@@ -48,7 +48,9 @@ const LoginScreen = () => {
               onChangeText={setPassword}
               secureTextEntry
               selectionColor="#7EA8CB"
-            />
+            />            
+            <Text>Esqueci minha senha</Text>
+
           </View>
 
      
@@ -108,7 +110,8 @@ const styles = StyleSheet.create({
     marginLeft:2
   },
   textInput: {
-    backgroundColor: '#b5cde1',
+    borderWidth:3.5,
+    borderColor:'#b5cde1',
     borderTopLeftRadius: 0,
     borderTopRightRadius: 20,
     borderBottomLeftRadius: 20,
