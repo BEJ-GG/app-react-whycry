@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { TextInputMask } from 'react-native-masked-text';
 import { Picker } from '@react-native-picker/picker';
+import { auth } from '../../firebaseConfig';
 
 const CadastroScreen = () => {
   const [email, setEmail] = useState('');
@@ -25,17 +26,59 @@ const CadastroScreen = () => {
   const [dataNasc, setdataNasc] = useState('');
   const [selectedValue, setSelectedValue] = useState(null);
 
+  const createUser = async  () => {
+    let erroValidacao = true;
+    try {
+      await auth.createUserWithEmailAndPassword(email, password);
+      console.log('Usuário cadastrado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao cadastrar usuário:', error.message);
+    }
+    
+    // validacoes();
+
+    // if (erroValidacao) {
+    // firebaseConfig
+    // .auth()
+    // .createUserWithEmailAndPassword(email, password)
+    // .then((response) => {
+    //   const uid = response.user.uid;
+    //   const data = {
+    //     id: uid,
+    //     email,
+    //     nome,
+    //   };
+    //   const usersRef = firebase.firestore().collection('UsuarioCadastro');
+    //   usersRef
+    //     .doc(uid)
+    //     .set(data)
+    //     .then(() => {
+    //       console.log("Cadastro registrado");
+    //       // navigation.navigate('Home', { user: data });
+    //     })
+    //     .catch((error) => {
+    //       alert(error);
+    //     });
+    // })
+    // .catch((error) => {
+    //   alert(error);
+    // });
+
+  };
+
   const validacoes = () => {
     validateEmail();
     validateNome();
     validateCpf();
     validateDate();
+    validatePassword();
   };
 
   const validateEmail = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setEmailError('Endereço de e-mail inválido');
+      erroValidacao = true;
     } else {
       setEmailError('');
     }
@@ -44,42 +87,69 @@ const CadastroScreen = () => {
   const validateNome = () => {
     if (nome.trim().length < 3) {
       setNomeError('O nome deve conter no mínimo 3 caracteres');
+      erroValidacao = true;
     } else {
       setNomeError('');
     }
   };
 
   const validatePassword = () => {
-    if (password != confirmaPassword ) {
-      setPasswordConfirmaError('Ops! Por favor, tente novamente.');
-    }
-    else {
+    if (password !== confirmaPassword) {
+      setPasswordConfirmaError('Ops! A senha está diferente');
+      erroValidacao = true;
+    } else {
       setPasswordConfirmaError('');
     }
 
-    if(password.trim().length === 0){
-      setPasswordError('A senha deve ter mais de 8');
-    }else{
+    let errorMessages = [];
+    if (password.trim().length < 8) {
+      errorMessages.push('- A senha deve ter mais de 8 caracteres');
+      erroValidacao = true;
+    }
+    if (!/[A-Z]/.test(password)) {
+      errorMessages.push('- A senha deve conter pelo menos uma letra maiúscula');
+      erroValidacao = true;
+    }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+      errorMessages.push('- A senha deve conter pelo menos um caracter especial');
+      erroValidacao = true;
+    }
+    if (!/\d/.test(password)) {
+      errorMessages.push('- A senha deve conter pelo menos um número');
+      erroValidacao = true;
+    }
+    if (errorMessages.length > 0) {
+      setPasswordError(errorMessages.join('\n'));
+    } else {
       setPasswordError('');
     }
   };
 
-
-  const validateConfirmarPassword = () => {
-    if (password != confirmaPassword ) {
-      setPasswordConfirmaError('Ops! Por favor, tente novamente.');
-    }
-    else {
-      setPasswordConfirmaError('');
-    }
-  };
-
-
   const validateCpf = () => {
-    if (cpf.length !== 11 || /^(.)\1+$/.test(cpf)) {
+    const cleanCpf = cpf.replace(/\D/g, '');
+    if (cleanCpf.length !== 11 || /^(.)\1+$/.test(cleanCpf)) {
       setCpfError('CPF inválido');
-    } else {
+      erroValidacao = true;
+      return;
+    }
+
+    const cpfArray = cleanCpf.split('').map(Number);
+    const calculateCheckDigit = (factor, max) => {
+      let total = 0;
+      for (let i = 0; i < max; i++) {
+        total += cpfArray[i] * factor--;
+      }
+      const remainder = total % 11;
+      return remainder < 2 ? 0 : 11 - remainder;
+    };
+
+    const firstCheckDigit = calculateCheckDigit(10, 9);
+    const secondCheckDigit = calculateCheckDigit(11, 10);
+    if (firstCheckDigit === cpfArray[9] && secondCheckDigit === cpfArray[10]) {
       setCpfError('');
+    } else {
+      setCpfError('CPF inválido');
+      erroValidacao = true;
     }
   };
 
@@ -95,15 +165,15 @@ const CadastroScreen = () => {
       setDataNascError('');
     } else {
       setDataNascError('Você deve ser maior de 18 anos');
+      erroValidacao = true;
     }
 
-
-    if(isValidDate){
+    if (isValidDate) {
       setDataNascError('');
-    }else {
+    } else {
       setDataNascError('Data inválida');
+      erroValidacao = true;
     }
-    
   };
 
   const handleTextInputPassword = (text) => {
@@ -121,8 +191,6 @@ const CadastroScreen = () => {
       setPasswordConfirmaError('');
     }
   };
-
-  
 
   const handleTextInputEmail = (text) => {
     setEmail(text);
@@ -173,7 +241,7 @@ const CadastroScreen = () => {
             selectionColor="#7EA8CB"
             caretColor="#7EA8CB"
           />
-          <Text style={styles.erroNome}>{nomeError}</Text>
+          <Text style={nomeError ? styles.msgErro : null}>{nomeError}</Text>
 
           {/* TextInput CPF  */}
           <Text>Cpf</Text>
@@ -186,7 +254,7 @@ const CadastroScreen = () => {
             type={'cpf'}
             maxLength={14}
           />
-          <Text style={styles.erroCpf}>{cpfError}</Text>
+          <Text style={cpfError ? styles.msgErro : null}>{cpfError}</Text>
 
           {/* TextInput Telefone  */}
           <Text>Telefone</Text>
@@ -202,7 +270,7 @@ const CadastroScreen = () => {
               dddMask: '(99) ',
             }}
           />
-          <Text></Text>
+              <Text></Text>           
 
           {/* Titulos nascimento e genero  */}
           <View style={styles.viewTituloDuasColunas}>
@@ -230,7 +298,7 @@ const CadastroScreen = () => {
                 }}
                 maxLength={10}
               />
-              <Text style={styles.erroPassword}>{dataNascError}</Text>
+              <Text style={dataNascError ? styles.msgErro : null}>{dataNascError}</Text>
             </View>
 
           {/* TextInput Genero  */}
@@ -242,9 +310,9 @@ const CadastroScreen = () => {
                   style={styles.textPicker}
                 >
                   <Picker.Item label="Selecione uma opção" value="" />
-                  <Picker.Item label="Masculino" value="masculino" />
-                  <Picker.Item label="Feminino" value="feminino" />
-                  <Picker.Item label="Outros" value="outros" />
+                  <Picker.Item label="Masculino" value="1" />
+                  <Picker.Item label="Feminino" value="2" />
+                  <Picker.Item label="Outros" value="3" />
                 </Picker>
               </View>
               <Text></Text>
@@ -260,21 +328,10 @@ const CadastroScreen = () => {
             onBlur={validateEmail}
             selectionColor="#7EA8CB"
           />
-          <Text style={styles.erroEmail}>{emailError}</Text>
-
-          {/* Titulos senha e confirmar senha  */}
-          <View style={styles.viewTituloDuasColunas}>
-            <View style={styles.viewPrimeiraColuna}>
-              <Text>Senha</Text>
-            </View>
-            <View style={styles.viewSegundaColuna}>
-              <Text>Confirmar Senha</Text>
-            </View>
-          </View>
+          <Text style={emailError ? styles.msgErro : null}>{emailError}</Text>
 
           {/* TextInput Senha  */}
-          <View style={styles.viewDuasColunas}>
-            <View style={styles.viewPrimeiraColuna}>
+          <Text>Senha</Text>
               <TextInput
                 style={styles.textInput}
                 value={password}
@@ -283,25 +340,25 @@ const CadastroScreen = () => {
                 secureTextEntry
                 selectionColor="#7EA8CB"
               />
-              <Text style={styles.erroDataNasc}>{passwordError}</Text>
-            </View>
+              <Text style={passwordError ? styles.msgErro : null}>{passwordError}</Text>           
 
             {/* TextInput Confirmar senha  */}
-            <View style={styles.viewSegundaColuna}>
+            <Text>Confirmar Senha</Text>
               <TextInput
                 style={styles.textInput}
                 value={confirmaPassword}
                 onChangeText={handleTextInputPasswordConfirma}
-                onBlur={validateConfirmarPassword}
                 secureTextEntry
                 selectionColor="#7EA8CB"
               />
-              <Text style={styles.erroDataNasc}>{passwordConfirmaError}</Text>
+              <Text style={passwordConfirmaError ? styles.msgErro : null}>{passwordConfirmaError}</Text>
+
+
+
             </View>
-          </View>
-        </View>
+    
         <View style={styles.containerBotoes}>
-          <TouchableOpacity style={styles.buttonEntrar} onPress={validacoes}>
+          <TouchableOpacity style={styles.buttonEntrar} onPress={createUser}>
             <Text style={styles.buttonText}>Entrar</Text>
           </TouchableOpacity>
         </View>
@@ -380,7 +437,11 @@ dropInput:{
   fontSize:15,
 justifyContent:'center'
 },
-
+msgErro:{
+  marginBottom:8,
+  fontSize:13,
+  color:'red'
+}
 
 });
 

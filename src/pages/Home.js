@@ -327,6 +327,7 @@ const styles = StyleSheet.create({
   geral: {
     backgroundColor: "#dae6f0",
     flex: 1,
+    justifyContent:'center',
   },
   touchableBox: {
     borderRadius: 500,

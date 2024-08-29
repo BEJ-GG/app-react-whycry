@@ -28,7 +28,7 @@ const LoginScreen = () => {
       {/* Logo no lugar do título */}
       <View style={styles.tesLg}>
       <Image
-        source={require('../../../assets/logWhy.png')}  // Substitua pelo caminho real para sua imagem
+        source={require('../../assets/logWhy.png')}  // Substitua pelo caminho real para sua imagem
         style={styles.logo}
       /> 
       </View>
@@ -71,7 +71,7 @@ const LoginScreen = () => {
       {/* Botão de Login com o Google reutilizando o estilo */}
       <TouchableOpacity style={styles.googleButton} onPress={handleGoogleLogin}>
       <Image
-        source={require('../../../assets/logoGoogle.png')}  // Substitua pelo caminho real para sua imagem
+        source={require('../../assets/logoGoogle.png')}  // Substitua pelo caminho real para sua imagem
         style={styles.logoGoogle}
       /> 
         <Text style={styles.buttonText}>Login com Google</Text>
